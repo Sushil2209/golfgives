@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GolfGives — Play. Win. Give.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070d09;--s1:#0e1810;--s2:#152118;--s3:#1c2d1e;--s4:#243428;
+  --gold:#c9a84c;--gold-l:#e8c87a;--gold-d:#7a6428;--gold-dim:rgba(201,168,76,0.15);
+  --em:#3a9060;--em-d:#1e5035;
+  --tx:#f0ebe0;--tx2:#9aa89a;--tx3:#5a6a5a;
+  --bdr:rgba(201,168,76,0.12);--bdr2:rgba(201,168,76,0.25);--bdr3:rgba(201,168,76,0.4);
+  --red:#e05040;--grn:#50c080;--blu:#4a90d9;
+  --r4:4px;--r8:8px;--r12:12px;--r16:16px;--r24:24px;
+}
+html,body{height:100%;background:var(--bg);color:var(--tx);font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden}
+h1,h2,h3,h4,.serif{font-family:'Cormorant Garamond',serif}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+input,select,textarea{font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+img{max-width:100%;display:block}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:3px}
+
+/* Layout */
+.page{min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* Nav */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(7,13,9,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--bdr)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:64px;padding:0 32px}
+.nav-logo{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:var(--gold);letter-spacing:0.5px;cursor:pointer}
+.nav-logo span{color:var(--tx2);font-weight:300}
+.nav-links{display:flex;gap:32px}
+.nav-link{font-size:13px;font-weight:500;color:var(--tx2);letter-spacing:0.5px;transition:color 0.2s;cursor:pointer}
+.nav-link:hover{color:var(--tx)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:var(--r8);font-size:14px;font-weight:500;transition:all 0.2s;border:none;padding:9px 20px}
+.btn-ghost{background:transparent;border:1px solid var(--bdr2);color:var(--tx2)}
+.btn-ghost:hover{border-color:var(--bdr3);color:var(--tx);background:var(--gold-dim)}
+.btn-gold{background:var(--gold);color:#0a0d08;font-weight:600}
+.btn-gold:hover{background:var(--gold-l);transform:translateY(-1px)}
+.btn-gold:active{transform:translateY(0)}
+.btn-dark{background:var(--s3);border:1px solid var(--bdr);color:var(--tx)}
+.btn-dark:hover{background:var(--s4);border-color:var(--bdr2)}
+.btn-danger{background:rgba(224,80,64,0.15);border:1px solid rgba(224,80,64,0.3);color:var(--red)}
+.btn-danger:hover{background:rgba(224,80,64,0.25)}
+.btn-success{background:rgba(80,192,128,0.15);border:1px solid rgba(80,192,128,0.3);color:var(--grn)}
+.btn-success:hover{background:rgba(80,192,128,0.25)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.btn-lg{padding:13px 28px;font-size:15px}
+.btn-xl{padding:16px 36px;font-size:16px;border-radius:var(--r12)}
+.btn-full{width:100%}
+.btn:disabled{opacity:0.4;cursor:not-allowed;transform:none !important}
+
+/* Cards */
+.card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r16);padding:24px}
+.card-sm{padding:16px}
+.card-gold{border-color:var(--bdr2)}
+
+/* Form */
+.field{display:flex;flex-direction:column;gap:6px}
+.field label{font-size:12px;font-weight:500;color:var(--tx2);letter-spacing:0.5px;text-transform:uppercase}
+.input{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r8);padding:10px 14px;color:var(--tx);font-size:14px;transition:border-color 0.2s;width:100%}
+.input:focus{border-color:var(--bdr3)}
+.input::placeholder{color:var(--tx3)}
+.select{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r8);padding:10px 14px;color:var(--tx);font-size:14px;width:100%;appearance:none;cursor:pointer}
+.form-row{display:grid;gap:16px}
+.form-2col{grid-template-columns:1fr 1fr}
+.form-error{font-size:12px;color:var(--red);margin-top:4px}
+
+/* Badge */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.badge-gold{background:rgba(201,168,76,0.15);color:var(--gold)}
+.badge-green{background:rgba(80,192,128,0.15);color:var(--grn)}
+.badge-red{background:rgba(224,80,64,0.15);color:var(--red)}
+.badge-blue{background:rgba(74,144,217,0.15);color:var(--blu)}
+.badge-gray{background:var(--s3);color:var(--tx2)}
+
+/* Divider */
+.divider{height:1px;background:var(--bdr);margin:20px 0}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn 0.2s ease}
+.modal{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--r24);padding:32px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;animation:slideUp 0.25s ease}
+.modal-lg{max-width:680px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;margin-bottom:6px}
+.modal-close{position:absolute;top:20px;right:20px;background:var(--s3);border:none;color:var(--tx2);width:32px;height:32px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;transition:all 0.2s}
+.modal-close:hover{background:var(--s4);color:var(--tx)}
+
+/* Landing sections */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 30%, rgba(58,144,96,0.08) 0%, transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--gold-dim);border:1px solid var(--bdr2);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:500;color:var(--gold);margin-bottom:32px;letter-spacing:0.5px}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(48px,8vw,96px);font-weight:300;line-height:1.05;letter-spacing:-1px;color:var(--tx);max-width:900px}
+.hero-title em{font-style:italic;color:var(--gold)}
+.hero-sub{font-size:17px;color:var(--tx2);max-width:540px;margin:24px auto;line-height:1.7;font-weight:300}
+.hero-actions{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:36px}
+.hero-stats{display:flex;gap:48px;margin-top:64px;padding-top:48px;border-top:1px solid var(--bdr)}
+.hero-stat-num{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;color:var(--gold)}
+.hero-stat-lbl{font-size:12px;color:var(--tx3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-top:2px}
+
+.section{padding:96px 0}
+.section-label{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+.section-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5vw,52px);font-weight:300;line-height:1.1;max-width:600px}
+.section-title em{font-style:italic;color:var(--gold)}
+.section-sub{font-size:15px;color:var(--tx2);max-width:500px;margin-top:16px;line-height:1.7}
+
+/* Steps */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:32px;margin-top:56px}
+.step{position:relative;padding:32px;background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r16);transition:border-color 0.3s}
+.step:hover{border-color:var(--bdr2)}
+.step-num{font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;color:var(--bdr);line-height:1;margin-bottom:16px;transition:color 0.3s}
+.step:hover .step-num{color:var(--gold-d)}
+.step-title{font-size:17px;font-weight:600;margin-bottom:8px}
+.step-desc{font-size:14px;color:var(--tx2);line-height:1.6}
+
+/* Prize bands */
+.prize-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.prize-card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r16);padding:28px;text-align:center;transition:all 0.3s}
+.prize-card.jackpot{border-color:var(--gold-d);background:linear-gradient(135deg,var(--s1),rgba(201,168,76,0.06))}
+.prize-match{font-family:'Cormorant Garamond',serif;font-size:38px;font-weight:600;color:var(--gold);margin-bottom:6px}
+.prize-label{font-size:12px;color:var(--tx3);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:16px}
+.prize-pool{font-size:22px;font-weight:600;margin-bottom:4px}
+.prize-note{font-size:12px;color:var(--tx2)}
+
+/* Charity cards */
+.charity-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.charity-card{background:var(--s1);border:1px solid var(--bdr);border-radius:var(--r16);overflow:hidden;cursor:pointer;transition:all 0.3s}
+.charity-card:hover{border-color:var(--bdr2);transform:translateY(-2px)}
+.charity-card.selected{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold-d)}
+.charity-img{height:160px;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--s2)}
+.charity-body{padding:20px}
+.charity-name{font-size:16px;font-weight:600;margin-bottom:4px}
+.charity-cat{font-size:11px;color:var(--gold);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:8px}
+.charity-desc{font-size:13px;color:var(--tx2);line-height:1.5;margin-bottom:12px}
+.charity-raised{font-size:13px;color:var(--tx3)}
+.charity-raised strong{color:var(--grn)}
+
+/* Plans */
+.plans{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:640px;margin:40px auto 0}
+.plan-card{background:var(--s1);border:2px solid var(--bdr);border-radius:var(--r16);padding:28px;cursor:pointer;transition:all 0.2s;position:relative}
+.plan-card:hover{border-color:var(--bdr2)}
+.plan-card.active{border-color:var(--gold);background:rgba(201,168,76,0.06)}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--gold);color:#0a0d08;font-size:11px;font-weight:700;padding:4px 12px;border-radius:100px;white-space:nowrap;letter-spacing:0.5px}
+.plan-name{font-size:14px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx2);margin-bottom:8px}
+.plan-price{font-family:'Cormorant Garamond',serif;font-size:42px;font-weight:600;color:var(--tx);line-height:1}
+.plan-period{font-size:14px;color:var(--tx3);margin-top:4px;margin-bottom:16px}
+.plan-features{list-style:none;display:flex;flex-direction:column;gap:8px}
+.plan-features li{font-size:13px;color:var(--tx2);display:flex;gap:8px;align-items:flex-start}
+.plan-features li::before{content:'✓';color:var(--grn);flex-shrink:0;margin-top:1px}
+
+/* Dashboard layout */
+.dash-layout{display:flex;min-height:100vh;padding-top:64px}
+.dash-sidebar{width:240px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--bdr);padding:24px 0;position:fixed;top:64px;bottom:0;overflow-y:auto}
+.dash-main{flex:1;margin-left:240px;padding:32px}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--tx3);padding:0 20px;margin-bottom:8px;margin-top:16px}
+.sidebar-item{display:flex;align-items:center;gap:12px;padding:10px 20px;cursor:pointer;transition:all 0.15s;color:var(--tx2);font-size:14px;font-weight:400;border-left:2px solid transparent}
+.sidebar-item:hover{color:var(--tx);background:var(--s2)}
+.sidebar-item.active{color:var(--gold);background:var(--gold-dim);border-left-color:var(--gold)}
+.sidebar-icon{font-size:16px;width:20px;text-align:center}
+
+/* Dashboard content */
+.dash-header{margin-bottom:32px}
+.dash-title{font-family:'Cormorant Garamond',serif;font-size:36px;font-weight:600;margin-bottom:4px}
+.dash-sub{font-size:14px;color:var(--tx2)}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r12);padding:20px}
+.stat-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);margin-bottom:8px}
+.stat-value{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:600;color:var(--tx);line-height:1}
+.stat-sub{font-size:12px;color:var(--tx2);margin-top:4px}
+
+/* Score table */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--bdr)}
+th{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:0.8px;color:var(--tx3);padding:10px 14px;text-align:left}
+td{padding:12px 14px;font-size:14px;border-bottom:1px solid var(--bdr)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--s2)}
+
+/* Scores viz */
+.score-bar-wrap{display:flex;align-items:flex-end;gap:8px;height:80px;margin-bottom:6px}
+.score-bar{flex:1;background:var(--em-d);border-radius:4px 4px 0 0;transition:all 0.4s;position:relative}
+.score-bar:hover{background:var(--em)}
+.score-bar-val{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:11px;font-weight:600;color:var(--gold);white-space:nowrap}
+
+/* Draw balls */
+.draw-numbers{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.ball{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:17px;transition:all 0.3s}
+.ball-drawn{background:var(--gold);color:#0a0d08}
+.ball-match{background:var(--grn);color:#030d05;box-shadow:0 0 16px rgba(80,192,128,0.4)}
+.ball-empty{background:var(--s3);color:var(--tx3)}
+
+/* Winner card */
+.winner-card{background:var(--s1);border:1px solid var(--bdr2);border-radius:var(--r16);padding:20px;margin-bottom:12px}
+.winner-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.25);border-radius:var(--r8);padding:6px 14px;font-size:12px;font-weight:600;color:var(--gold);margin-bottom:12px}
+
+/* Search */
+.search-bar{display:flex;align-items:center;gap:12px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r12);padding:10px 16px}
+.search-bar input{background:none;border:none;color:var(--tx);font-size:14px;flex:1}
+.search-bar input::placeholder{color:var(--tx3)}
+
+/* Subscription prompt */
+.subscribe-prompt{background:linear-gradient(135deg,var(--s2),rgba(201,168,76,0.06));border:1px solid var(--gold-d);border-radius:var(--r16);padding:32px;text-align:center;margin:32px 0}
+
+/* Notification */
+.toast{position:fixed;bottom:24px;right:24px;z-index:500;background:var(--s3);border:1px solid var(--bdr2);border-radius:var(--r12);padding:14px 20px;font-size:14px;max-width:320px;animation:slideIn 0.3s ease;display:flex;align-items:center;gap:12px}
+.toast-success{border-color:rgba(80,192,128,0.4);background:rgba(80,192,128,0.1)}
+.toast-error{border-color:rgba(224,80,64,0.4);background:rgba(224,80,64,0.1)}
+
+/* Footer */
+.footer{background:var(--s1);border-top:1px solid var(--bdr);padding:48px 0;margin-top:0}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+.footer-brand{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold);margin-bottom:12px}
+.footer-desc{font-size:13px;color:var(--tx3);line-height:1.7}
+.footer-col h4{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--tx2);margin-bottom:16px}
+.footer-links{display:flex;flex-direction:column;gap:10px}
+.footer-link{font-size:13px;color:var(--tx3);cursor:pointer;transition:color 0.2s}
+.footer-link:hover{color:var(--tx2)}
+.footer-bottom{border-top:1px solid var(--bdr);padding-top:24px;margin-top:40px;display:flex;justify-content:space-between;font-size:12px;color:var(--tx3)}
+
+/* Admin */
+.admin-tabs{display:flex;gap:4px;background:var(--s2);border:1px solid var(--bdr);border-radius:var(--r12);padding:4px;margin-bottom:28px;flex-wrap:wrap}
+.admin-tab{padding:8px 18px;border-radius:var(--r8);font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all 0.15s;background:none;border:none;white-space:nowrap}
+.admin-tab.active{background:var(--s4);color:var(--tx);border:1px solid var(--bdr2)}
+.admin-tab:hover{color:var(--tx)}
+
+/* User sub-tabs */
+.sub-tabs{display:flex;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:24px}
+.sub-tab{padding:10px 20px;font-size:14px;color:var(--tx2);cursor:pointer;transition:all 0.15s;border-bottom:2px solid transparent;background:none;border-top:none;border-left:none;border-right:none}
+.sub-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.sub-tab:hover{color:var(--tx)}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+.fade-in{animation:fadeIn 0.4s ease}
+.spinner{width:20px;height:20px;border:2px solid var(--bdr2);border-top-color:var(--gold);border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block}
+
+/* Responsive */
+@media(max-width:900px){
+  .dash-sidebar{display:none}
+  .dash-main{margin-left:0;padding:20px}
+  .prize-grid{grid-template-columns:1fr}
+  .hero-stats{gap:24px;flex-wrap:wrap}
+  .footer-grid{grid-template-columns:1fr 1fr}
+  .plans{grid-template-columns:1fr}
+  .form-2col{grid-template-columns:1fr}
+}
+@media(max-width:600px){
+  .nav-links{display:none}
+  .hero-title{font-size:38px}
+  .section{padding:64px 0}
+}
+
+/* Gold line decorative */
+.gold-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold-d),transparent);margin:48px 0}
+
+/* Empty state */
+.empty{text-align:center;padding:48px 24px;color:var(--tx3)}
+.empty-icon{font-size:40px;margin-bottom:16px;opacity:0.4}
+.empty-title{font-size:16px;font-weight:500;color:var(--tx2);margin-bottom:8px}
+.empty-desc{font-size:13px}
+
+/* Progress bar */
+.progress-wrap{background:var(--s3);border-radius:100px;height:6px;overflow:hidden;margin:8px 0}
+.progress-fill{height:100%;background:var(--gold);border-radius:100px;transition:width 0.5s ease}
+.progress-fill.green{background:var(--grn)}
+
+/* Tooltip-like info */
+.info-chip{display:inline-flex;align-items:center;gap:4px;background:var(--s3);border-radius:var(--r8);padding:4px 10px;font-size:12px;color:var(--tx2)}
+
+/* Flex helpers */
+.flex{display:flex}.flex-col{flex-direction:column}.items-center{align-items:center}.justify-between{justify-content:space-between}.gap-4{gap:4px}.gap-8{gap:8px}.gap-12{gap:12px}.gap-16{gap:16px}.gap-20{gap:20px}.gap-24{gap:24px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}.mt-16{margin-top:16px}.mt-20{margin-top:20px}.mt-24{margin-top:24px}.mt-32{margin-top:32px}
+.mb-4{margin-bottom:4px}.mb-8{margin-bottom:8px}.mb-12{margin-bottom:12px}.mb-16{margin-bottom:16px}.mb-20{margin-bottom:20px}
+.w-full{width:100%}.text-center{text-align:center}.text-right{text-align:right}
+.text-gold{color:var(--gold)}.text-muted{color:var(--tx2)}.text-sm{font-size:13px}.text-xs{font-size:12px}.font-medium{font-weight:500}.font-bold{font-weight:600}
+.flex-1{flex:1}
+.relative{position:relative}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef, useCallback } = React;
+
+/* ─── INITIAL DATA ─────────────────────────────────────────── */
+const PLANS = {
+  monthly: { label: 'Monthly', price: 12.99, period: '/month', total: 12.99 },
+  yearly:  { label: 'Yearly',  price: 9.99,  period: '/month', total: 119.88, saving: '23% off' }
+};
+
+const INIT_CHARITIES = [
+  { id:'c1', name:'Links to Life', cat:'Mental Health', emoji:'🧠', desc:'Providing mental health support through sport and community connection programs across the UK.', raised:48200, events:[{name:'Charity Golf Day',date:'2026-05-15'},{name:'Summer Scramble',date:'2026-07-20'}] },
+  { id:'c2', name:'Eagle Fund',    cat:'Youth & Education', emoji:'🦅', desc:'Supporting underprivileged youth through access to sport, mentoring, and educational scholarships.', raised:91500, events:[{name:'Junior Open',date:'2026-06-08'}] },
+  { id:'c3', name:'Greens for Good', cat:'Environment', emoji:'🌱', desc:'Environmental conservation and rewilding projects embedded across golf landscapes nationwide.', raised:33800, events:[{name:'Conservation Walk',date:'2026-05-22'},{name:'Rewilding Round',date:'2026-09-14'}] },
+  { id:'c4', name:'Fairway Futures', cat:'Health Research', emoji:'🏥', desc:'Funding cancer research and patient support services for communities connected through golf.', raised:127400, events:[] },
+  { id:'c5', name:'Stroke of Hope', cat:'Healthcare', emoji:'💙', desc:'Rehabilitation and recovery support services for stroke survivors and their families.', raised:62100, events:[{name:'Charity Tournament',date:'2026-08-10'}] },
+  { id:'c6', name:'The Open Door', cat:'Homelessness', emoji:'🚪', desc:'Providing shelter, meals, and life skills support for those experiencing homelessness.', raised:29400, events:[{name:'Community Golf Day',date:'2026-06-25'}] },
+];
+
+const INIT_USERS = [
+  { id:'u1', name:'Admin User',    email:'admin@digitalheroes.co.in', pwd:'admin123', role:'admin', subscribed:true,  plan:'yearly',   joinDate:'2025-01-15', renewal:'2027-01-15', charityId:'c1', charityPct:15, scores:[], wins:[] },
+  { id:'u2', name:'James Wilson',  email:'user@test.com',             pwd:'user123',  role:'user',  subscribed:true,  plan:'monthly',  joinDate:'2025-11-20', renewal:'2026-05-20', charityId:'c2', charityPct:10,
+    scores:[{id:'s1',score:32,date:'2026-04-10'},{id:'s2',score:28,date:'2026-04-03'},{id:'s3',score:35,date:'2026-03-25'},{id:'s4',score:27,date:'2026-03-18'},{id:'s5',score:31,date:'2026-03-10'}],
+    wins:[{drawId:'d1',match:'5-Match',prize:840,status:'pending',proof:null}] },
+  { id:'u3', name:'Sarah Chen',    email:'sarah@test.com',            pwd:'pass123',  role:'user',  subscribed:true,  plan:'monthly',  joinDate:'2025-10-05', renewal:'2026-05-05', charityId:'c3', charityPct:20,
+    scores:[{id:'s6',score:30,date:'2026-04-12'},{id:'s7',score:33,date:'2026-04-05'},{id:'s8',score:29,date:'2026-03-28'}],
+    wins:[] },
+  { id:'u4', name:'Michael Roberts', email:'mike@test.com',           pwd:'pass123',  role:'user',  subscribed:false, plan:null, joinDate:'2026-02-14', renewal:null, charityId:null, charityPct:10, scores:[], wins:[] },
+  { id:'u5', name:'Emma Thompson', email:'emma@test.com',             pwd:'pass123',  role:'user',  subscribed:true,  plan:'yearly',   joinDate:'2025-08-01', renewal:'2026-08-01', charityId:'c4', charityPct:12,
+    scores:[{id:'s9',score:38,date:'2026-04-11'},{id:'s10',score:41,date:'2026-04-04'},{id:'s11',score:36,date:'2026-03-29'}],
+    wins:[] },
+];
+
+const INIT_DRAWS = [
+  { id:'d1', month:3, year:2026, status:'published', numbers:[28,31,32,27,35], prizePool:2100, jackpot:840, results:[{userId:'u2',match:'5-Match',prize:840,status:'pending',proof:null}] },
+  { id:'d2', month:4, year:2026, status:'pending',   numbers:null,            prizePool:0,    jackpot:1680, results:[] },
+];
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+/* ─── UTILITIES ────────────────────────────────────────────── */
+function fmt_currency(n){ return '£'+n.toLocaleString('en-GB',{minimumFractionDigits:0}) }
+function fmt_date(d){ if(!d)return '—'; const [y,m,dd]=d.split('-'); return `${dd} ${MONTHS[parseInt(m)-1]} ${y}` }
+function gen_id(){ return Math.random().toString(36).slice(2,9) }
+
+function calcMatchType(scores, drawn) {
+  const scoreVals = scores.map(s=>s.score);
+  const matches = drawn.filter(n=>scoreVals.includes(n)).length;
+  if(matches>=5) return '5-Match';
+  if(matches>=4) return '4-Match';
+  if(matches>=3) return '3-Match';
+  return null;
+}
+
+function runDraw(users, prevJackpot, logic='random') {
+  let numbers;
+  if(logic==='algorithmic') {
+    // Weighted by most frequent scores across all users
+    const freq = {};
+    users.filter(u=>u.subscribed).forEach(u=>u.scores.forEach(s=>{freq[s.score]=(freq[s.score]||0)+1}));
+    const pool = Object.keys(freq).map(k=>({n:parseInt(k),w:freq[k]}));
+    const all45 = Array.from({length:45},(_,i)=>({n:i+1,w:pool.find(p=>p.n===i+1)?.w||0.5}));
+    const totalW = all45.reduce((a,b)=>a+b.w,0);
+    numbers=[];
+    while(numbers.length<5){
+      let r=Math.random()*totalW,cum=0;
+      for(const item of all45){cum+=item.w;if(r<=cum&&!numbers.includes(item.n)){numbers.push(item.n);break;}}
+      if(numbers.length<5&&!all45.find(a=>!numbers.includes(a.n)&&a.w>0)) break;
+    }
+    while(numbers.length<5){let n;do{n=Math.floor(Math.random()*45)+1}while(numbers.includes(n));numbers.push(n);}
+  } else {
+    numbers=[];
+    while(numbers.length<5){let n;do{n=Math.floor(Math.random()*45)+1}while(numbers.includes(n));numbers.push(n);}
+  }
+  numbers.sort((a,b)=>a-b);
+
+  const subCount = users.filter(u=>u.subscribed).length;
+  const pool = subCount * 12.99;
+  const charityTotal = pool * 0.12;
+  const prizePool = Math.round((pool - charityTotal) * 0.6);
+
+  const results = [];
+  users.filter(u=>u.subscribed&&u.scores.length>0).forEach(u=>{
+    const match=calcMatchType(u.scores,numbers);
+    if(match){
+      let prize=0;
+      if(match==='5-Match') prize=Math.round(prizePool*0.4)+prevJackpot;
+      else if(match==='4-Match') prize=Math.round(prizePool*0.35);
+      else prize=Math.round(prizePool*0.25);
+      results.push({userId:u.id,match,prize,status:'pending',proof:null});
+    }
+  });
+
+  const hasJackpot = results.some(r=>r.match==='5-Match');
+  const jackpot = hasJackpot ? 0 : Math.round(prizePool*0.4)+prevJackpot;
+  return { numbers, prizePool, jackpot, results };
+}
+
+/* ─── TOAST ─────────────────────────────────────────────────── */
+function Toast({ msg, type, onClose }) {
+  useEffect(()=>{const t=setTimeout(onClose,3500);return()=>clearTimeout(t)},[]);
+  return (
+    <div className={`toast toast-${type}`}>
+      <span>{type==='success'?'✓':'✕'}</span>
+      <span>{msg}</span>
+      <button onClick={onClose} style={{marginLeft:'auto',background:'none',border:'none',color:'inherit',fontSize:18,cursor:'pointer'}}>×</button>
+    </div>
+  );
+}
+
+/* ─── NAV ───────────────────────────────────────────────────── */
+function Nav({ view, setView, user, onAuth, onLogout }) {
+  return (
+    <nav className="nav">
+      <div className="nav-inner">
+        <div className="nav-logo" onClick={()=>setView('home')}>GolfGives<span> ·</span></div>
+        <div className="nav-links">
+          <span className="nav-link" onClick={()=>setView('home')}>Home</span>
+          <span className="nav-link" onClick={()=>setView('charities')}>Charities</span>
+          {user && <span className="nav-link" onClick={()=>setView('dashboard')}>Dashboard</span>}
+          {user?.role==='admin' && <span className="nav-link" style={{color:'var(--gold)'}} onClick={()=>setView('admin')}>Admin</span>}
+        </div>
+        <div className="nav-actions">
+          {!user ? <>
+            <button className="btn btn-ghost btn-sm" onClick={()=>onAuth('login')}>Log In</button>
+            <button className="btn btn-gold btn-sm" onClick={()=>onAuth('signup')}>Subscribe</button>
+          </> : <>
+            <span style={{fontSize:13,color:'var(--tx2)'}}>Hi, {user.name.split(' ')[0]}</span>
+            <button className="btn btn-ghost btn-sm" onClick={onLogout}>Log Out</button>
+          </>}
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+/* ─── AUTH MODAL ────────────────────────────────────────────── */
+function AuthModal({ mode: initMode, onClose, onLogin, users, setUsers }) {
+  const [mode,setMode]=useState(initMode);
+  const [form,setForm]=useState({name:'',email:'',pwd:'',plan:'yearly'});
+  const [err,setErr]=useState('');
+  const [loading,setLoading]=useState(false);
+  const f=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+
+  function doLogin(e) {
+    e.preventDefault(); setErr('');
+    const u = users.find(x=>x.email===form.email&&x.pwd===form.pwd);
+    if(!u) return setErr('Invalid email or password.');
+    setLoading(true);
+    setTimeout(()=>{setLoading(false);onLogin(u);onClose();},700);
+  }
+
+  function doSignup(e) {
+    e.preventDefault(); setErr('');
+    if(!form.name.trim()) return setErr('Name is required.');
+    if(!form.email.includes('@')) return setErr('Enter a valid email.');
+    if(form.pwd.length<6) return setErr('Password must be at least 6 characters.');
+    if(users.find(x=>x.email===form.email)) return setErr('Email already registered.');
+    setLoading(true);
+    setTimeout(()=>{
+      const newUser={
+        id:'u'+gen_id(), name:form.name.trim(), email:form.email, pwd:form.pwd,
+        role:'user', subscribed:true, plan:form.plan,
+        joinDate:new Date().toISOString().slice(0,10),
+        renewal:new Date(Date.now()+30*24*3600000*( form.plan==='yearly'?12:1)).toISOString().slice(0,10),
+        charityId:null, charityPct:10, scores:[], wins:[]
+      };
+      setUsers(p=>[...p,newUser]);
+      setLoading(false);
+      onLogin(newUser);
+      onClose();
+    },900);
+  }
+
+  return (
+    <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&onClose()}>
+      <div className="modal" style={{position:'relative'}}>
+        <button className="modal-close" onClick={onClose}>×</button>
+        {mode==='login' ? <>
+          <div style={{marginBottom:24}}>
+            <div className="modal-title">Welcome back</div>
+            <div style={{fontSize:14,color:'var(--tx2)'}}>Log in to your GolfGives account</div>
+          </div>
+          <form onSubmit={doLogin} style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div className="field"><label>Email</label><input className="input" type="email" placeholder="your@email.com" value={form.email} onChange={f('email')} required /></div>
+            <div className="field"><label>Password</label><input className="input" type="password" placeholder="••••••••" value={form.pwd} onChange={f('pwd')} required /></div>
+            {err && <div className="form-error">{err}</div>}
+            <button className="btn btn-gold btn-full" type="submit" disabled={loading}>{loading?<span className="spinner"/>:'Log In'}</button>
+          </form>
+          <div style={{marginTop:20,textAlign:'center',fontSize:13,color:'var(--tx2)'}}>
+            Don't have an account? <span style={{color:'var(--gold)',cursor:'pointer'}} onClick={()=>setMode('signup')}>Subscribe now →</span>
+          </div>
+          <div style={{marginTop:12,textAlign:'center',fontSize:11,color:'var(--tx3)'}}>
+            Demo: user@test.com / user123 &nbsp;|&nbsp; admin@digitalheroes.co.in / admin123
+          </div>
+        </> : <>
+          <div style={{marginBottom:24}}>
+            <div className="modal-title">Join GolfGives</div>
+            <div style={{fontSize:14,color:'var(--tx2)'}}>Play, win, and give back with every round</div>
+          </div>
+          <form onSubmit={doSignup} style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div className="field"><label>Full Name</label><input className="input" placeholder="Your name" value={form.name} onChange={f('name')} required /></div>
+            <div className="field"><label>Email</label><input className="input" type="email" placeholder="your@email.com" value={form.email} onChange={f('email')} required /></div>
+            <div className="field"><label>Password</label><input className="input" type="password" placeholder="Min. 6 characters" value={form.pwd} onChange={f('pwd')} required /></div>
+            <div className="field">
+              <label>Choose Your Plan</label>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginTop:4}}>
+                {['monthly','yearly'].map(p=>(
+                  <div key={p} onClick={()=>setForm(x=>({...x,plan:p}))} style={{
+                    background:form.plan===p?'rgba(201,168,76,0.08)':'var(--s2)',
+                    border:`1px solid ${form.plan===p?'var(--gold-d)':'var(--bdr)'}`,
+                    borderRadius:'var(--r12)',padding:'12px',cursor:'pointer',position:'relative',transition:'all 0.2s'
+                  }}>
+                    {p==='yearly'&&<div style={{position:'absolute',top:-8,right:8,background:'var(--gold)',color:'#0a0d08',fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:100}}>BEST VALUE</div>}
+                    <div style={{fontSize:12,fontWeight:600,textTransform:'uppercase',letterSpacing:1,color:'var(--tx2)',marginBottom:4}}>{PLANS[p].label}</div>
+                    <div style={{fontFamily:'Cormorant Garamond',fontSize:26,fontWeight:600}}>£{PLANS[p].price}</div>
+                    <div style={{fontSize:11,color:'var(--tx3)'}}>{PLANS[p].period}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            {err && <div className="form-error">{err}</div>}
+            <button className="btn btn-gold btn-full" type="submit" disabled={loading}>{loading?<span className="spinner"/>:'Subscribe & Join'}</button>
+          </form>
+          <div style={{marginTop:20,textAlign:'center',fontSize:13,color:'var(--tx2)'}}>
+            Already a member? <span style={{color:'var(--gold)',cursor:'pointer'}} onClick={()=>setMode('login')}>Log in →</span>
+          </div>
+        </>}
+      </div>
+    </div>
+  );
+}
+
+/* ─── LANDING PAGE ──────────────────────────────────────────── */
+function Landing({ onAuth, draws, charities }) {
+  const latestDraw = draws.find(d=>d.status==='published');
+  return (
+    <div className="page">
+      {/* Hero */}
+      <section className="hero">
+        <div className="hero-badge">🏆 Monthly Prize Draws · Real Charity Impact</div>
+        <h1 className="hero-title">
+          Your golf score<br/>
+          could <em>change a life.</em>
+        </h1>
+        <p className="hero-sub">Enter your Stableford scores each month. Win prizes from the pool. Support a charity you believe in — automatically, with every subscription.</p>
+        <div className="hero-actions">
+          <button className="btn btn-gold btn-xl" onClick={()=>onAuth('signup')}>Start Playing & Giving</button>
+          <button className="btn btn-ghost btn-xl" onClick={()=>onAuth('login')}>I Have an Account</button>
+        </div>
+        <div className="hero-stats">
+          <div className="text-center"><div className="hero-stat-num">£{(charities.reduce((a,c)=>a+c.raised,0)/1000).toFixed(0)}k+</div><div className="hero-stat-lbl">Raised for Charity</div></div>
+          <div className="text-center"><div className="hero-stat-num">{charities.length}</div><div className="hero-stat-lbl">Charity Partners</div></div>
+          <div className="text-center"><div className="hero-stat-num">£{latestDraw?fmt_currency(latestDraw.jackpot).slice(1):'1,680'}</div><div className="hero-stat-lbl">Current Jackpot</div></div>
+          <div className="text-center"><div className="hero-stat-num">10%+</div><div className="hero-stat-lbl">Goes to Charity</div></div>
+        </div>
+      </section>
+
+      <div className="gold-line" />
+
+      {/* How it works */}
+      <section className="section">
+        <div className="container">
+          <div className="section-label">How it works</div>
+          <h2 className="section-title">Three steps to play, win, <em>and give</em></h2>
+          <div className="steps">
+            {[
+              {n:'01',title:'Subscribe & Choose',desc:'Pick a monthly or yearly plan. Select a charity partner that matters to you — a portion of every subscription goes directly to them.'},
+              {n:'02',title:'Enter Your Scores',desc:'Add your five latest Stableford scores (1–45) after each round. Your score history updates automatically, keeping your five most recent rounds on file.'},
+              {n:'03',title:'Win the Monthly Draw',desc:"Each month we draw five numbers. Match 3, 4, or all 5 of your scores and you're a winner. Jackpots roll over if unclaimed — they can grow huge."},
+            ].map(s=>(
+              <div className="step" key={s.n}>
+                <div className="step-num">{s.n}</div>
+                <div className="step-title">{s.title}</div>
+                <div className="step-desc">{s.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Prize structure */}
+      <section className="section" style={{background:'var(--s1)',paddingTop:80,paddingBottom:80}}>
+        <div className="container">
+          <div className="section-label">Prize Pool</div>
+          <h2 className="section-title">Three ways to <em>win</em> every month</h2>
+          <p className="section-sub">The prize pool grows with every subscriber. Match your Stableford scores to the monthly draw numbers.</p>
+          <div className="prize-grid">
+            <div className="prize-card jackpot">
+              <div className="prize-match">5</div>
+              <div className="prize-label">Numbers Matched · Jackpot</div>
+              <div className="prize-pool">40% of Pool</div>
+              <div className="prize-note">Rolls over if unclaimed →</div>
+            </div>
+            <div className="prize-card">
+              <div className="prize-match">4</div>
+              <div className="prize-label">Numbers Matched</div>
+              <div className="prize-pool">35% of Pool</div>
+              <div className="prize-note">Split equally if multiple winners</div>
+            </div>
+            <div className="prize-card">
+              <div className="prize-match">3</div>
+              <div className="prize-label">Numbers Matched</div>
+              <div className="prize-pool">25% of Pool</div>
+              <div className="prize-note">Split equally if multiple winners</div>
+            </div>
+          </div>
+          <div className="card card-gold mt-32" style={{maxWidth:540}}>
+            <div style={{fontSize:14,fontWeight:600,marginBottom:8,color:'var(--gold)'}}>April 2026 · Jackpot</div>
+            <div style={{fontFamily:'Cormorant Garamond',fontSize:48,fontWeight:600,lineHeight:1}}>{fmt_currency(1680)}</div>
+            <div style={{fontSize:13,color:'var(--tx2)',marginTop:8}}>Rolled over from March — no jackpot winner. Draw runs at month end.</div>
+          </div>
+        </div>
+      </section>
+
+      {/* Charities */}
+      <section className="section">
+        <div className="container">
+          <div className="section-label">Charity Partners</div>
+          <h2 className="section-title">Your subscription <em>funds real change</em></h2>
+          <p className="section-sub">Choose where your contribution goes. Every subscriber donates a minimum 10% of their subscription — you can give more.</p>
+          <div className="charity-grid mt-32">
+            {charities.slice(0,3).map(c=>(
+              <div className="charity-card" key={c.id}>
+                <div className="charity-img" style={{fontSize:52}}>{c.emoji}</div>
+                <div className="charity-body">
+                  <div className="charity-cat">{c.cat}</div>
+                  <div className="charity-name">{c.name}</div>
+                  <div className="charity-desc">{c.desc}</div>
+                  <div className="charity-raised">Total raised: <strong>{fmt_currency(c.raised)}</strong></div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <div className="mt-24 text-center">
+            <button className="btn btn-ghost" onClick={()=>{}}>View all {charities.length} charities →</button>
+          </div>
+        </div>
+      </section>
+
+      {/* Subscribe CTA */}
+      <section className="section" style={{background:'var(--s1)'}}>
+        <div className="container text-center">
+          <div className="section-label">Ready to Start?</div>
+          <h2 className="section-title" style={{margin:'0 auto 20px',textAlign:'center'}}>Play. Win. <em>Give.</em></h2>
+          <p style={{color:'var(--tx2)',fontSize:15,maxWidth:440,margin:'0 auto 40px',lineHeight:1.7}}>Join a growing community of golfers who compete, win prizes, and fund causes that matter.</p>
+          <div className="plans">
+            {Object.entries(PLANS).map(([key,plan])=>(
+              <div key={key} className="plan-card" onClick={()=>onAuth('signup')} style={{cursor:'pointer'}}>
+                {key==='yearly'&&<div className="plan-badge">BEST VALUE — {plan.saving}</div>}
+                <div className="plan-name">{plan.label}</div>
+                <div className="plan-price">£{plan.price}</div>
+                <div className="plan-period">{plan.period} · billed {key==='yearly'?'annually':'monthly'}</div>
+                <ul className="plan-features">
+                  <li>Monthly prize draw entry</li>
+                  <li>Score tracking & history</li>
+                  <li>Charity contribution</li>
+                  {key==='yearly'&&<li>2 months free vs monthly</li>}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:32}}>
+            <button className="btn btn-gold btn-xl" onClick={()=>onAuth('signup')}>Subscribe Now</button>
+          </div>
+          <div style={{marginTop:16,fontSize:12,color:'var(--tx3)'}}>Cancel anytime · No hidden fees · Stripe-secured payments</div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="footer">
+        <div className="container">
+          <div className="footer-grid">
+            <div>
+              <div className="footer-brand">GolfGives ·</div>
+              <div className="footer-desc">The platform where your golf game funds real-world change. Subscribe, score, win, give.</div>
+            </div>
+            <div>
+              <h4>Platform</h4>
+              <div className="footer-links">
+                <span className="footer-link">How It Works</span>
+                <span className="footer-link">Charities</span>
+                <span className="footer-link">Prize Draws</span>
+                <span className="footer-link">Subscription Plans</span>
+              </div>
+            </div>
+            <div>
+              <h4>Support</h4>
+              <div className="footer-links">
+                <span className="footer-link">FAQs</span>
+                <span className="footer-link">Contact Us</span>
+                <span className="footer-link">Draw Rules</span>
+              </div>
+            </div>
+            <div>
+              <h4>Legal</h4>
+              <div className="footer-links">
+                <span className="footer-link">Privacy Policy</span>
+                <span className="footer-link">Terms of Service</span>
+                <span className="footer-link">Cookie Policy</span>
+              </div>
+            </div>
+          </div>
+          <div className="footer-bottom">
+            <span>© 2026 GolfGives · A Digital Heroes Platform</span>
+            <span>Registered charity fundraising platform · PCI-DSS compliant payments</span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
+
+/* ─── CHARITIES PAGE ─────────────────────────────────────────── */
+function CharitiesPage({ charities, user, onAuth }) {
+  const [search,setSearch]=useState('');
+  const filtered = charities.filter(c=>
+    c.name.toLowerCase().includes(search.toLowerCase()) ||
+    c.cat.toLowerCase().includes(search.toLowerCase())
+  );
+  return (
+    <div className="page" style={{paddingTop:64}}>
+      <div className="container" style={{padding:'48px 24px'}}>
+        <div className="section-label">Our Partners</div>
+        <h1 style={{fontFamily:'Cormorant Garamond',fontSize:'clamp(32px,5vw,52px)',fontWeight:300,marginBottom:8}}>Charity <em style={{color:'var(--gold)'}}>Partners</em></h1>
+        <p style={{color:'var(--tx2)',marginBottom:36,fontSize:15}}>Choose where your contribution goes. Every charity is vetted and verified.</p>
+        <div className="search-bar" style={{maxWidth:400,marginBottom:32}}>
+          <span style={{color:'var(--tx3)'}}>🔍</span>
+          <input placeholder="Search charities…" value={search} onChange={e=>setSearch(e.target.value)}/>
+        </div>
+        <div className="charity-grid">
+          {filtered.map(c=>(
+            <div className="charity-card" key={c.id}>
+              <div className="charity-img">{c.emoji}</div>
+              <div className="charity-body">
+                <div className="charity-cat">{c.cat}</div>
+                <div className="charity-name">{c.name}</div>
+                <div className="charity-desc">{c.desc}</div>
+                <div className="charity-raised" style={{marginBottom:12}}>Raised: <strong>{fmt_currency(c.raised)}</strong></div>
+                {c.events.length>0&&<div style={{marginTop:8}}>
+                  <div style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8,color:'var(--tx3)',marginBottom:8}}>Upcoming Events</div>
+                  {c.events.map((ev,i)=>(
+                    <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:12,color:'var(--tx2)',padding:'4px 0',borderTop:'1px solid var(--bdr)'}}>
+                      <span>{ev.name}</span><span style={{color:'var(--gold)'}}>{fmt_date(ev.date)}</span>
+                    </div>
+                  ))}
+                </div>}
+                {!user&&<button className="btn btn-ghost btn-sm mt-12" onClick={()=>onAuth('signup')}>Support This Charity</button>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── USER DASHBOARD ─────────────────────────────────────────── */
+function UserDashboard({ user, setUser, users, setUsers, charities, draws, setDraws, showToast, onAuth }) {
+  const [tab,setTab]=useState('overview');
+
+  if(!user.subscribed) return (
+    <div className="dash-layout">
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:40}}>
+        <div className="subscribe-prompt" style={{maxWidth:560}}>
+          <div style={{fontSize:40,marginBottom:16}}>🏌️</div>
+          <h2 style={{fontFamily:'Cormorant Garamond',fontSize:32,fontWeight:300,marginBottom:12}}>Your account is <em style={{color:'var(--gold)'}}>inactive</em></h2>
+          <p style={{color:'var(--tx2)',marginBottom:24,fontSize:15}}>Subscribe to access score tracking, monthly draws, and charity contributions.</p>
+          <button className="btn btn-gold btn-lg" onClick={()=>onAuth('signup')}>Activate Subscription</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const TABS = [
+    {id:'overview', icon:'◈', label:'Overview'},
+    {id:'scores',   icon:'⊞', label:'My Scores'},
+    {id:'charity',  icon:'♡', label:'Charity'},
+    {id:'draws',    icon:'◎', label:'Draws'},
+    {id:'winnings', icon:'★', label:'Winnings'},
+    {id:'profile',  icon:'⊙', label:'Profile'},
+  ];
+
+  return (
+    <div className="dash-layout">
+      <div className="dash-sidebar">
+        <div style={{padding:'16px 20px 12px',borderBottom:'1px solid var(--bdr)'}}>
+          <div style={{fontSize:16,fontWeight:600}}>{user.name}</div>
+          <div style={{fontSize:12,color:'var(--tx3)',marginTop:2}}>{user.email}</div>
+          <div className="mt-8"><span className={`badge badge-${user.subscribed?'green':'red'}`}>{user.subscribed?'Active':'Inactive'} · {user.plan||'—'}</span></div>
+        </div>
+        <div style={{marginTop:8}}>
+          <div className="sidebar-label">Navigation</div>
+          {TABS.map(t=>(
+            <div key={t.id} className={`sidebar-item ${tab===t.id?'active':''}`} onClick={()=>setTab(t.id)}>
+              <span className="sidebar-icon">{t.icon}</span>{t.label}
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="dash-main">
+        {tab==='overview' && <DashOverview user={user} draws={draws} charities={charities} setTab={setTab}/>}
+        {tab==='scores'   && <DashScores user={user} setUser={setUser} users={users} setUsers={setUsers} showToast={showToast}/>}
+        {tab==='charity'  && <DashCharity user={user} setUser={setUser} users={users} setUsers={setUsers} charities={charities} showToast={showToast}/>}
+        {tab==='draws'    && <DashDraws user={user} draws={draws}/>}
+        {tab==='winnings' && <DashWinnings user={user} setUser={setUser} users={users} setUsers={setUsers} showToast={showToast}/>}
+        {tab==='profile'  && <DashProfile user={user} setUser={setUser} users={users} setUsers={setUsers} showToast={showToast}/>}
+      </div>
+    </div>
+  );
+}
+
+function DashOverview({ user, draws, charities, setTab }) {
+  const charity = charities.find(c=>c.id===user.charityId);
+  const latestDraw = draws.find(d=>d.status==='published');
+  const upcomingDraw = draws.find(d=>d.status==='pending');
+  const totalWon = user.wins.reduce((a,w)=>a+w.prize,0);
+  const contribution = Math.round((PLANS[user.plan]?.price||12.99)*(user.charityPct/100));
+
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">Good to see you, {user.name.split(' ')[0]} 👋</h1>
+        <p className="dash-sub">Here's your GolfGives overview for this month</p>
+      </div>
+      <div className="stat-grid">
+        <div className="stat-card">
+          <div className="stat-label">Scores on File</div>
+          <div className="stat-value">{user.scores.length}<span style={{fontFamily:'Plus Jakarta Sans',fontSize:14,color:'var(--tx3)'}}>/5</span></div>
+          <div className="stat-sub">{5-user.scores.length} slot{5-user.scores.length!==1?'s':''} remaining</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Total Won</div>
+          <div className="stat-value" style={{color:'var(--gold)'}}>{fmt_currency(totalWon)}</div>
+          <div className="stat-sub">{user.wins.length} prize win{user.wins.length!==1?'s':''}</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Monthly Charity</div>
+          <div className="stat-value" style={{color:'var(--grn)'}}>£{contribution}</div>
+          <div className="stat-sub">{user.charityPct}% of subscription</div>
+        </div>
+        <div className="stat-card">
+          <div className="stat-label">Next Draw</div>
+          <div className="stat-value" style={{fontSize:20,color:'var(--gold)'}}>{upcomingDraw?`${MONTHS[upcomingDraw.month-1]} ${upcomingDraw.year}`:'—'}</div>
+          <div className="stat-sub">{upcomingDraw?`Jackpot: ${fmt_currency(upcomingDraw.jackpot)}`:'No upcoming draw'}</div>
+        </div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginTop:8}}>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+            My Scores <button className="btn btn-ghost btn-sm" onClick={()=>setTab('scores')}>Add Score</button>
+          </div>
+          {user.scores.length===0 ? (
+            <div className="empty"><div className="empty-icon">⊞</div><div className="empty-title">No scores yet</div><div className="empty-desc">Add your Stableford scores to enter draws</div></div>
+          ) : (
+            <>
+              <div className="score-bar-wrap">
+                {user.scores.slice(0,5).map((s,i)=>{
+                  const pct = (s.score/45)*100;
+                  return <div key={i} className="score-bar" style={{height:`${pct}%`}}><span className="score-bar-val">{s.score}</span></div>
+                })}
+                {Array.from({length:5-user.scores.length}).map((_,i)=>(
+                  <div key={'e'+i} className="score-bar" style={{height:'10%',opacity:0.2}} />
+                ))}
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--tx3)',marginTop:8}}>
+                {user.scores.slice(0,5).map((s,i)=><span key={i}>{fmt_date(s.date).slice(0,6)}</span>)}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Charity Contribution</div>
+          {charity ? (
+            <>
+              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                <div style={{fontSize:32,background:'var(--s3)',padding:12,borderRadius:'var(--r12)'}}>{charity.emoji}</div>
+                <div>
+                  <div style={{fontWeight:600}}>{charity.name}</div>
+                  <div style={{fontSize:12,color:'var(--gold)'}}>{charity.cat}</div>
+                </div>
+              </div>
+              <div style={{display:'flex',justifyContent:'space-between',marginBottom:8,fontSize:13}}>
+                <span style={{color:'var(--tx2)'}}>Monthly contribution</span>
+                <span style={{color:'var(--grn)',fontWeight:600}}>£{contribution}</span>
+              </div>
+              <div className="progress-wrap"><div className="progress-fill green" style={{width:`${user.charityPct*3}%`}}/></div>
+              <div style={{fontSize:12,color:'var(--tx3)',marginTop:4}}>{user.charityPct}% of your subscription</div>
+              <button className="btn btn-ghost btn-sm mt-12" onClick={()=>setTab('charity')}>Change charity</button>
+            </>
+          ) : (
+            <div className="empty"><div className="empty-icon">♡</div><div className="empty-title">No charity selected</div>
+              <button className="btn btn-gold btn-sm mt-12" onClick={()=>setTab('charity')}>Choose a Charity</button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {latestDraw && latestDraw.numbers && (
+        <div className="card card-gold mt-20">
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+            <div>
+              <div style={{fontWeight:600}}>March 2026 Draw Results</div>
+              <div style={{fontSize:13,color:'var(--tx2)'}}>Published draw — {latestDraw.results.length} winner{latestDraw.results.length!==1?'s':''}</div>
+            </div>
+            <span className="badge badge-green">Published</span>
+          </div>
+          <div className="draw-numbers">
+            {latestDraw.numbers.map((n,i)=>{
+              const isMatch = user.scores.some(s=>s.score===n);
+              return <div key={i} className={`ball ${isMatch?'ball-match':'ball-drawn'}`}>{n}</div>
+            })}
+          </div>
+          <div style={{fontSize:13,color:'var(--tx2)'}}>
+            {calcMatchType(user.scores,latestDraw.numbers) 
+              ? <span style={{color:'var(--grn)',fontWeight:600}}>🎉 You matched! Check Winnings tab for details.</span>
+              : 'Your scores didn\'t match this draw. Keep playing!'}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DashScores({ user, setUser, users, setUsers, showToast }) {
+  const [showAdd,setShowAdd]=useState(false);
+  const [form,setForm]=useState({score:'',date:''});
+  const [err,setErr]=useState('');
+  const f=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+
+  function updateUserData(updatedUser) {
+    setUser(updatedUser);
+    setUsers(prev=>prev.map(u=>u.id===updatedUser.id?updatedUser:u));
+  }
+
+  function addScore(e) {
+    e.preventDefault(); setErr('');
+    const score = parseInt(form.score);
+    if(!score||score<1||score>45) return setErr('Score must be between 1 and 45.');
+    if(!form.date) return setErr('Date is required.');
+    if(user.scores.some(s=>s.date===form.date)) return setErr('A score for this date already exists. Edit or delete the existing entry.');
+    
+    let newScores = [...user.scores, {id:'s'+gen_id(), score, date:form.date}]
+      .sort((a,b)=>b.date.localeCompare(a.date));
+    if(newScores.length>5) newScores = newScores.slice(0,5);
+
+    updateUserData({...user, scores:newScores});
+    setForm({score:'',date:''});
+    setShowAdd(false);
+    showToast('Score added successfully','success');
+  }
+
+  function deleteScore(id) {
+    updateUserData({...user, scores:user.scores.filter(s=>s.id!==id)});
+    showToast('Score removed','success');
+  }
+
+  const avgScore = user.scores.length ? Math.round(user.scores.reduce((a,s)=>a+s.score,0)/user.scores.length) : 0;
+  const bestScore = user.scores.length ? Math.max(...user.scores.map(s=>s.score)) : 0;
+
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">My Scores</h1>
+        <p className="dash-sub">Track your last 5 Stableford scores. The oldest score is automatically replaced when you add a 6th.</p>
+      </div>
+      <div className="stat-grid">
+        <div className="stat-card"><div className="stat-label">Scores on File</div><div className="stat-value">{user.scores.length}/5</div></div>
+        <div className="stat-card"><div className="stat-label">Average Score</div><div className="stat-value">{avgScore||'—'}</div></div>
+        <div className="stat-card"><div className="stat-label">Best Score</div><div className="stat-value" style={{color:'var(--gold)'}}>{bestScore||'—'}</div></div>
+        <div className="stat-card"><div className="stat-label">Draw Eligible</div><div className="stat-value" style={{color:user.scores.length>0?'var(--grn)':'var(--red)'}}>{user.scores.length>0?'Yes':'No'}</div></div>
+      </div>
+
+      <div className="card mt-8">
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+          <div style={{fontWeight:600}}>Score History</div>
+          <button className="btn btn-gold btn-sm" onClick={()=>{setShowAdd(!showAdd);setErr('');setForm({score:'',date:''})}} disabled={showAdd}>
+            + Add Score
+          </button>
+        </div>
+
+        {showAdd && (
+          <form onSubmit={addScore} style={{background:'var(--s2)',borderRadius:'var(--r12)',padding:20,marginBottom:20,border:'1px solid var(--bdr2)'}}>
+            <div style={{fontWeight:600,marginBottom:16,fontSize:15}}>New Score Entry</div>
+            <div className="form-row form-2col">
+              <div className="field">
+                <label>Stableford Score (1–45)</label>
+                <input className="input" type="number" min={1} max={45} placeholder="e.g. 32" value={form.score} onChange={f('score')} required/>
+              </div>
+              <div className="field">
+                <label>Date Played</label>
+                <input className="input" type="date" max={new Date().toISOString().slice(0,10)} value={form.date} onChange={f('date')} required/>
+              </div>
+            </div>
+            {err && <div className="form-error mt-8">{err}</div>}
+            <div style={{display:'flex',gap:12,marginTop:16}}>
+              <button className="btn btn-gold" type="submit">Save Score</button>
+              <button className="btn btn-ghost" type="button" onClick={()=>{setShowAdd(false);setErr('')}}>Cancel</button>
+            </div>
+            {user.scores.length>=5 && (
+              <div style={{fontSize:12,color:'var(--tx3)',marginTop:12}}>⚠️ You already have 5 scores. Adding a new one will remove your oldest entry ({fmt_date(user.scores[user.scores.length-1]?.date)}).</div>
+            )}
+          </form>
+        )}
+
+        {user.scores.length===0 ? (
+          <div className="empty"><div className="empty-icon">⊞</div><div className="empty-title">No scores yet</div><div className="empty-desc">Add your recent Stableford scores to participate in monthly draws</div></div>
+        ) : (
+          <div className="table-wrap">
+            <table>
+              <thead><tr><th>#</th><th>Date Played</th><th>Stableford Score</th><th>Draw Eligible</th><th></th></tr></thead>
+              <tbody>
+                {user.scores.map((s,i)=>(
+                  <tr key={s.id}>
+                    <td style={{color:'var(--tx3)'}}>{i+1}</td>
+                    <td>{fmt_date(s.date)}</td>
+                    <td><span style={{fontFamily:'Cormorant Garamond',fontSize:22,fontWeight:600,color:'var(--gold)'}}>{s.score}</span></td>
+                    <td><span className="badge badge-green">✓ Eligible</span></td>
+                    <td><button className="btn btn-danger btn-sm" onClick={()=>deleteScore(s.id)}>Remove</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DashCharity({ user, setUser, users, setUsers, charities, showToast }) {
+  const [showPicker,setShowPicker]=useState(false);
+  const [pct,setPct]=useState(user.charityPct);
+  const current = charities.find(c=>c.id===user.charityId);
+
+  function updateUserData(updatedUser) {
+    setUser(updatedUser);
+    setUsers(prev=>prev.map(u=>u.id===updatedUser.id?updatedUser:u));
+  }
+
+  function saveCharity(charityId) {
+    updateUserData({...user, charityId});
+    setShowPicker(false);
+    showToast('Charity updated','success');
+  }
+
+  function savePct() {
+    if(pct<10) return showToast('Minimum contribution is 10%','error');
+    updateUserData({...user, charityPct:pct});
+    showToast('Contribution updated','success');
+  }
+
+  const monthlyContrib = Math.round((PLANS[user.plan]?.price||12.99)*(pct/100)*100)/100;
+
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">My Charity</h1>
+        <p className="dash-sub">Choose where your contribution goes and set how much you give each month.</p>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Selected Charity</div>
+          {current ? (
+            <>
+              <div style={{display:'flex',gap:16,alignItems:'center',marginBottom:16}}>
+                <div style={{fontSize:48,background:'var(--s3)',padding:16,borderRadius:'var(--r16)',flexShrink:0}}>{current.emoji}</div>
+                <div>
+                  <div style={{fontWeight:600,fontSize:17}}>{current.name}</div>
+                  <div style={{fontSize:12,color:'var(--gold)',marginTop:2}}>{current.cat}</div>
+                  <div style={{fontSize:13,color:'var(--tx2)',marginTop:6}}>{current.desc}</div>
+                </div>
+              </div>
+              <div style={{fontSize:13,color:'var(--tx3)',marginBottom:16}}>Total raised by platform: <strong style={{color:'var(--grn)'}}>{fmt_currency(current.raised)}</strong></div>
+              {current.events.length>0&&(
+                <div style={{marginBottom:16}}>
+                  <div style={{fontSize:11,fontWeight:600,textTransform:'uppercase',letterSpacing:0.8,color:'var(--tx3)',marginBottom:8}}>Upcoming Events</div>
+                  {current.events.map((ev,i)=>(
+                    <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:13,padding:'6px 0',borderTop:'1px solid var(--bdr)'}}>
+                      <span>{ev.name}</span><span style={{color:'var(--gold)'}}>{fmt_date(ev.date)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button className="btn btn-ghost btn-sm" onClick={()=>setShowPicker(true)}>Change Charity</button>
+            </>
+          ) : (
+            <div className="empty">
+              <div className="empty-icon">♡</div>
+              <div className="empty-title">No charity selected</div>
+              <button className="btn btn-gold mt-12" onClick={()=>setShowPicker(true)}>Choose a Charity</button>
+            </div>
+          )}
+        </div>
+
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Contribution Settings</div>
+          <div className="field">
+            <label>Contribution Percentage</label>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <input type="range" min={10} max={50} step={1} value={pct} onChange={e=>setPct(parseInt(e.target.value))} style={{flex:1}}/>
+              <span style={{fontFamily:'Cormorant Garamond',fontSize:28,fontWeight:600,color:'var(--gold)',minWidth:48}}>{pct}%</span>
+            </div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:11,color:'var(--tx3)',marginTop:2}}>
+              <span>Min 10%</span><span>Max 50%</span>
+            </div>
+          </div>
+          <div style={{marginTop:20,padding:16,background:'var(--s2)',borderRadius:'var(--r12)',border:'1px solid var(--bdr)'}}>
+            <div style={{fontSize:13,color:'var(--tx2)',marginBottom:4}}>Monthly contribution at {pct}%</div>
+            <div style={{fontFamily:'Cormorant Garamond',fontSize:36,fontWeight:600,color:'var(--grn)'}}>£{monthlyContrib.toFixed(2)}</div>
+            <div style={{fontSize:12,color:'var(--tx3)',marginTop:4}}>from your £{PLANS[user.plan]?.price||12.99}/month subscription</div>
+          </div>
+          <button className="btn btn-gold mt-16" onClick={savePct}>Save Contribution</button>
+          <div style={{marginTop:12,fontSize:12,color:'var(--tx3)'}}>Independent donations are also available — not tied to gameplay.</div>
+        </div>
+      </div>
+
+      {showPicker && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setShowPicker(false)}>
+          <div className="modal modal-lg" style={{position:'relative'}}>
+            <button className="modal-close" onClick={()=>setShowPicker(false)}>×</button>
+            <div className="modal-title" style={{marginBottom:20}}>Choose a Charity</div>
+            <div className="charity-grid">
+              {charities.map(c=>(
+                <div key={c.id} className={`charity-card ${user.charityId===c.id?'selected':''}`} onClick={()=>saveCharity(c.id)}>
+                  <div className="charity-img">{c.emoji}</div>
+                  <div className="charity-body">
+                    <div className="charity-cat">{c.cat}</div>
+                    <div className="charity-name">{c.name}</div>
+                    <div className="charity-desc" style={{WebkitLineClamp:2,display:'-webkit-box',WebkitBoxOrient:'vertical',overflow:'hidden'}}>{c.desc}</div>
+                    {user.charityId===c.id && <div className="badge badge-green mt-8">✓ Selected</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DashDraws({ user, draws }) {
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">Monthly Draws</h1>
+        <p className="dash-sub">Your draw history and upcoming draws. Match 3, 4, or 5 of your scores to win.</p>
+      </div>
+
+      {draws.map(draw=>{
+        const monthName = MONTHS[draw.month-1];
+        const myMatch = draw.status==='published' && draw.numbers ? calcMatchType(user.scores,draw.numbers) : null;
+        const myWin = user.wins.find(w=>w.drawId===draw.id);
+        return (
+          <div className="card card-gold mt-16" key={draw.id} style={draw.status==='pending'?{border:'1px dashed var(--gold-d)'}:{}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16}}>
+              <div>
+                <div style={{fontWeight:600,fontSize:18}}>{monthName} {draw.year} Draw</div>
+                <div style={{fontSize:13,color:'var(--tx2)',marginTop:2}}>
+                  {draw.status==='published'?`Prize pool: ${fmt_currency(draw.prizePool)}`:`Jackpot: ${fmt_currency(draw.jackpot)} · Draw pending`}
+                </div>
+              </div>
+              <span className={`badge ${draw.status==='published'?'badge-green':'badge-gold'}`}>{draw.status==='published'?'Published':'Pending'}</span>
+            </div>
+
+            {draw.status==='published' && draw.numbers && (
+              <>
+                <div style={{fontSize:12,color:'var(--tx3)',marginBottom:8,textTransform:'uppercase',letterSpacing:0.8,fontWeight:600}}>Drawn Numbers</div>
+                <div className="draw-numbers">
+                  {draw.numbers.map((n,i)=>{
+                    const isMyScore = user.scores.some(s=>s.score===n);
+                    return <div key={i} className={`ball ${isMyScore?'ball-match':'ball-drawn'}`}>{n}</div>
+                  })}
+                </div>
+                <div style={{marginTop:12,fontSize:13}}>
+                  {myMatch ? (
+                    <div style={{color:'var(--grn)',fontWeight:600}}>🎉 {myMatch} — You won {myWin?fmt_currency(myWin.prize):'a prize'}!</div>
+                  ) : (
+                    <div style={{color:'var(--tx3)'}}>Your scores ({user.scores.map(s=>s.score).join(', ')}) didn't match this draw.</div>
+                  )}
+                </div>
+              </>
+            )}
+
+            {draw.status==='pending' && (
+              <div style={{background:'var(--s2)',borderRadius:'var(--r12)',padding:16}}>
+                <div style={{fontWeight:500,marginBottom:8}}>Your current scores for this draw:</div>
+                {user.scores.length>0 ? (
+                  <div style={{display:'flex',gap:10,flexWrap:'wrap'}}>
+                    {user.scores.map((s,i)=><div key={i} className="ball ball-empty">{s.score}</div>)}
+                  </div>
+                ) : (
+                  <div style={{fontSize:13,color:'var(--tx3)'}}>No scores on file — add scores before the draw to participate.</div>
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function DashWinnings({ user, setUser, users, setUsers, showToast }) {
+  const [uploading,setUploading]=useState(null);
+
+  function updateUserData(updatedUser) {
+    setUser(updatedUser);
+    setUsers(prev=>prev.map(u=>u.id===updatedUser.id?updatedUser:u));
+  }
+
+  function uploadProof(winIdx) {
+    setUploading(winIdx);
+    setTimeout(()=>{
+      const newWins = [...user.wins];
+      newWins[winIdx]={...newWins[winIdx], proof:'proof_upload_'+Date.now()+'.png'};
+      updateUserData({...user, wins:newWins});
+      setUploading(null);
+      showToast('Proof uploaded! Awaiting admin verification.','success');
+    },1200);
+  }
+
+  const totalWon = user.wins.reduce((a,w)=>a+w.prize,0);
+  const paid = user.wins.filter(w=>w.status==='paid').reduce((a,w)=>a+w.prize,0);
+  const pending = totalWon - paid;
+
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">Winnings</h1>
+        <p className="dash-sub">Track your prize wins, verification status, and payments.</p>
+      </div>
+      <div className="stat-grid">
+        <div className="stat-card"><div className="stat-label">Total Won</div><div className="stat-value" style={{color:'var(--gold)'}}>{fmt_currency(totalWon)}</div></div>
+        <div className="stat-card"><div className="stat-label">Paid Out</div><div className="stat-value" style={{color:'var(--grn)'}}>{fmt_currency(paid)}</div></div>
+        <div className="stat-card"><div className="stat-label">Pending</div><div className="stat-value" style={{color:'var(--gold)'}}>{fmt_currency(pending)}</div></div>
+      </div>
+
+      {user.wins.length===0 ? (
+        <div className="card mt-8 empty">
+          <div className="empty-icon">★</div>
+          <div className="empty-title">No winnings yet</div>
+          <div className="empty-desc">Enter draws by keeping scores on file. Good luck! 🍀</div>
+        </div>
+      ) : user.wins.map((w,i)=>(
+        <div className="winner-card" key={i}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
+            <div>
+              <div className="winner-badge">🏆 {w.match} Winner</div>
+              <div style={{fontFamily:'Cormorant Garamond',fontSize:36,fontWeight:600,color:'var(--gold)',lineHeight:1,marginBottom:4}}>{fmt_currency(w.prize)}</div>
+              <div style={{fontSize:13,color:'var(--tx2)'}}>Draw ID: {w.drawId}</div>
+            </div>
+            <span className={`badge ${w.status==='paid'?'badge-green':w.proof?'badge-blue':'badge-gold'}`}>
+              {w.status==='paid'?'Paid':w.proof?'Under Review':'Pending Verification'}
+            </span>
+          </div>
+          {w.status!=='paid' && (
+            <div style={{marginTop:16,padding:14,background:'var(--s2)',borderRadius:'var(--r12)',border:'1px solid var(--bdr)'}}>
+              <div style={{fontWeight:500,fontSize:13,marginBottom:8}}>Winner Verification Required</div>
+              <div style={{fontSize:13,color:'var(--tx2)',marginBottom:12}}>Upload a screenshot of your scores from your golf platform to verify your win and release payment.</div>
+              {w.proof ? (
+                <div style={{fontSize:13,color:'var(--grn)'}}>✓ Proof uploaded: {w.proof}</div>
+              ) : (
+                <button className="btn btn-gold btn-sm" disabled={uploading===i} onClick={()=>uploadProof(i)}>
+                  {uploading===i?<><span className="spinner"/> Uploading…</>:'Upload Score Proof'}
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DashProfile({ user, setUser, users, setUsers, showToast }) {
+  const [form,setForm]=useState({name:user.name,email:user.email});
+  const [pwd,setPwd]=useState({current:'',new1:'',new2:''});
+  const f=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+  const fp=k=>e=>setPwd(p=>({...p,[k]:e.target.value}));
+
+  function updateUserData(updatedUser) {
+    setUser(updatedUser);
+    setUsers(prev=>prev.map(u=>u.id===updatedUser.id?updatedUser:u));
+  }
+
+  function saveProfile(e) {
+    e.preventDefault();
+    if(!form.name.trim()) return showToast('Name cannot be empty','error');
+    updateUserData({...user, name:form.name, email:form.email});
+    showToast('Profile updated','success');
+  }
+
+  function changePassword(e) {
+    e.preventDefault();
+    if(pwd.current!==user.pwd) return showToast('Current password incorrect','error');
+    if(pwd.new1.length<6) return showToast('New password must be 6+ characters','error');
+    if(pwd.new1!==pwd.new2) return showToast('Passwords do not match','error');
+    updateUserData({...user, pwd:pwd.new1});
+    setPwd({current:'',new1:'',new2:''});
+    showToast('Password changed successfully','success');
+  }
+
+  return (
+    <div className="fade-in">
+      <div className="dash-header">
+        <h1 className="dash-title">Profile & Settings</h1>
+        <p className="dash-sub">Manage your account details and subscription.</p>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:20}}>Personal Details</div>
+          <form onSubmit={saveProfile} style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div className="field"><label>Full Name</label><input className="input" value={form.name} onChange={f('name')}/></div>
+            <div className="field"><label>Email Address</label><input className="input" type="email" value={form.email} onChange={f('email')}/></div>
+            <button className="btn btn-gold" type="submit">Save Changes</button>
+          </form>
+        </div>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:20}}>Change Password</div>
+          <form onSubmit={changePassword} style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div className="field"><label>Current Password</label><input className="input" type="password" value={pwd.current} onChange={fp('current')}/></div>
+            <div className="field"><label>New Password</label><input className="input" type="password" value={pwd.new1} onChange={fp('new1')}/></div>
+            <div className="field"><label>Confirm New Password</label><input className="input" type="password" value={pwd.new2} onChange={fp('new2')}/></div>
+            <button className="btn btn-dark" type="submit">Update Password</button>
+          </form>
+        </div>
+      </div>
+      <div className="card mt-20">
+        <div style={{fontWeight:600,marginBottom:16}}>Subscription Details</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(180px,1fr))',gap:12}}>
+          {[
+            {label:'Plan',val:user.plan?user.plan.charAt(0).toUpperCase()+user.plan.slice(1):'—'},
+            {label:'Status',val:user.subscribed?'Active':'Inactive'},
+            {label:'Member Since',val:fmt_date(user.joinDate)},
+            {label:'Next Renewal',val:fmt_date(user.renewal)},
+            {label:'Monthly Cost',val:`£${PLANS[user.plan]?.price||'—'}`},
+          ].map((item,i)=>(
+            <div key={i} style={{background:'var(--s2)',borderRadius:'var(--r12)',padding:14}}>
+              <div style={{fontSize:11,color:'var(--tx3)',fontWeight:600,textTransform:'uppercase',letterSpacing:0.8,marginBottom:6}}>{item.label}</div>
+              <div style={{fontWeight:500}}>{item.val}</div>
+            </div>
+          ))}
+        </div>
+        <div className="divider"/>
+        <div style={{display:'flex',gap:12}}>
+          <button className="btn btn-ghost btn-sm">Upgrade Plan</button>
+          <button className="btn btn-danger btn-sm">Cancel Subscription</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── ADMIN DASHBOARD ───────────────────────────────────────── */
+function AdminDashboard({ users, setUsers, charities, setCharities, draws, setDraws, showToast }) {
+  const [tab,setTab]=useState('overview');
+  const TABS = ['overview','users','draws','charities','winners','reports'];
+  const TAB_LABELS = {overview:'Overview',users:'Users',draws:'Draw Management',charities:'Charities',winners:'Winners',reports:'Reports'};
+
+  return (
+    <div style={{paddingTop:64,minHeight:'100vh'}}>
+      <div className="container" style={{padding:'32px 24px'}}>
+        <div className="dash-header">
+          <h1 className="dash-title" style={{display:'flex',alignItems:'center',gap:12}}>
+            <span style={{fontSize:24}}>⊙</span> Admin Dashboard
+          </h1>
+          <p className="dash-sub">Platform management · Digital Heroes GolfGives</p>
+        </div>
+        <div className="admin-tabs">
+          {TABS.map(t=><button key={t} className={`admin-tab ${tab===t?'active':''}`} onClick={()=>setTab(t)}>{TAB_LABELS[t]}</button>)}
+        </div>
+        {tab==='overview'    && <AdminOverview users={users} charities={charities} draws={draws}/>}
+        {tab==='users'       && <AdminUsers users={users} setUsers={setUsers} showToast={showToast}/>}
+        {tab==='draws'       && <AdminDraws users={users} draws={draws} setDraws={setDraws} setUsers={setUsers} showToast={showToast}/>}
+        {tab==='charities'   && <AdminCharities charities={charities} setCharities={setCharities} showToast={showToast}/>}
+        {tab==='winners'     && <AdminWinners users={users} setUsers={setUsers} draws={draws} showToast={showToast}/>}
+        {tab==='reports'     && <AdminReports users={users} draws={draws} charities={charities}/>}
+      </div>
+    </div>
+  );
+}
+
+function AdminOverview({ users, charities, draws }) {
+  const subCount = users.filter(u=>u.subscribed).length;
+  const monthlyRevenue = subCount * 12.99;
+  const charityTotal = users.filter(u=>u.subscribed).reduce((a,u)=>a+Math.round((PLANS[u.plan]?.price||12.99)*(u.charityPct/100)),0);
+  const totalWon = users.flatMap(u=>u.wins).reduce((a,w)=>a+w.prize,0);
+  const pendingWinners = users.flatMap(u=>u.wins).filter(w=>w.status==='pending').length;
+
+  return (
+    <div className="fade-in">
+      <div className="stat-grid">
+        <div className="stat-card"><div className="stat-label">Total Users</div><div className="stat-value">{users.length}</div><div className="stat-sub">{subCount} active subscribers</div></div>
+        <div className="stat-card"><div className="stat-label">Monthly Revenue</div><div className="stat-value" style={{color:'var(--gold)'}}>{fmt_currency(Math.round(monthlyRevenue))}</div><div className="stat-sub">{subCount} subscriptions</div></div>
+        <div className="stat-card"><div className="stat-label">Charity Total</div><div className="stat-value" style={{color:'var(--grn)'}}>{fmt_currency(charityTotal)}</div><div className="stat-sub">This month</div></div>
+        <div className="stat-card"><div className="stat-label">Pending Winners</div><div className="stat-value" style={{color:pendingWinners>0?'var(--red)':'var(--tx)'}}>{pendingWinners}</div><div className="stat-sub">Awaiting verification</div></div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginTop:8}}>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Recent Draws</div>
+          {draws.map(d=>(
+            <div key={d.id} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderBottom:'1px solid var(--bdr)'}}>
+              <span style={{fontWeight:500}}>{MONTHS[d.month-1]} {d.year}</span>
+              <span className={`badge ${d.status==='published'?'badge-green':'badge-gold'}`}>{d.status}</span>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Charity Distribution</div>
+          {charities.slice(0,5).map(c=>(
+            <div key={c.id} style={{marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:4}}>
+                <span>{c.emoji} {c.name}</span>
+                <span style={{color:'var(--grn)',fontWeight:500}}>{fmt_currency(c.raised)}</span>
+              </div>
+              <div className="progress-wrap"><div className="progress-fill green" style={{width:`${Math.min(100,(c.raised/130000)*100)}%`}}/></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminUsers({ users, setUsers, showToast }) {
+  const [search,setSearch]=useState('');
+  const [editing,setEditing]=useState(null);
+  const [form,setForm]=useState({});
+
+  const filtered = users.filter(u=>
+    u.name.toLowerCase().includes(search.toLowerCase())||
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  function startEdit(u) { setEditing(u.id); setForm({name:u.name,email:u.email,plan:u.plan||'monthly',subscribed:u.subscribed}); }
+
+  function saveEdit() {
+    setUsers(prev=>prev.map(u=>u.id===editing?{...u,...form}:u));
+    setEditing(null);
+    showToast('User updated','success');
+  }
+
+  function toggleSub(uid) {
+    setUsers(prev=>prev.map(u=>u.id===uid?{...u,subscribed:!u.subscribed}:u));
+    showToast('Subscription toggled','success');
+  }
+
+  return (
+    <div className="fade-in">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div style={{fontWeight:600,fontSize:18}}>User Management <span style={{color:'var(--tx3)',fontSize:14,fontWeight:400}}>({users.length} total)</span></div>
+      </div>
+      <div className="search-bar" style={{marginBottom:20}}>
+        <span style={{color:'var(--tx3)'}}>🔍</span>
+        <input placeholder="Search by name or email…" value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+      <div className="card" style={{padding:0}}>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>User</th><th>Plan</th><th>Status</th><th>Joined</th><th>Scores</th><th>Actions</th></tr></thead>
+            <tbody>
+              {filtered.map(u=>(
+                <tr key={u.id}>
+                  <td>
+                    <div style={{fontWeight:500}}>{u.name}</div>
+                    <div style={{fontSize:12,color:'var(--tx3)'}}>{u.email}</div>
+                  </td>
+                  <td>{u.plan?<span className="badge badge-gold">{u.plan}</span>:'—'}</td>
+                  <td><span className={`badge ${u.subscribed?'badge-green':'badge-red'}`}>{u.subscribed?'Active':'Inactive'}</span></td>
+                  <td style={{fontSize:13,color:'var(--tx2)'}}>{fmt_date(u.joinDate)}</td>
+                  <td style={{fontWeight:600,color:'var(--gold)'}}>{u.scores.length}/5</td>
+                  <td>
+                    <div style={{display:'flex',gap:8}}>
+                      <button className="btn btn-ghost btn-sm" onClick={()=>startEdit(u)}>Edit</button>
+                      <button className={`btn btn-sm ${u.subscribed?'btn-danger':'btn-success'}`} onClick={()=>toggleSub(u.id)}>
+                        {u.subscribed?'Deactivate':'Activate'}
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {editing && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setEditing(null)}>
+          <div className="modal" style={{position:'relative'}}>
+            <button className="modal-close" onClick={()=>setEditing(null)}>×</button>
+            <div className="modal-title" style={{marginBottom:20}}>Edit User</div>
+            <div style={{display:'flex',flexDirection:'column',gap:16}}>
+              <div className="field"><label>Full Name</label><input className="input" value={form.name} onChange={e=>setForm(p=>({...p,name:e.target.value}))}/></div>
+              <div className="field"><label>Email</label><input className="input" value={form.email} onChange={e=>setForm(p=>({...p,email:e.target.value}))}/></div>
+              <div className="field">
+                <label>Plan</label>
+                <select className="select" value={form.plan||''} onChange={e=>setForm(p=>({...p,plan:e.target.value}))}>
+                  <option value="">—</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+              </div>
+              <div style={{display:'flex',gap:12}}>
+                <button className="btn btn-gold flex-1" onClick={saveEdit}>Save Changes</button>
+                <button className="btn btn-ghost" onClick={()=>setEditing(null)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminDraws({ users, draws, setDraws, setUsers, showToast }) {
+  const [logic,setLogic]=useState('random');
+  const [simResult,setSimResult]=useState(null);
+  const [simRunning,setSimRunning]=useState(false);
+
+  const pending = draws.find(d=>d.status==='pending');
+  const published = draws.filter(d=>d.status==='published');
+
+  function runSimulation() {
+    setSimRunning(true);
+    setTimeout(()=>{
+      const prevJackpot = pending?.jackpot||0;
+      const result = runDraw(users, prevJackpot, logic);
+      setSimResult(result);
+      setSimRunning(false);
+      showToast('Simulation complete — review before publishing','success');
+    },1200);
+  }
+
+  function publishDraw() {
+    if(!simResult) return;
+    const drawId = pending?.id||'d'+gen_id();
+    const month = pending?.month||new Date().getMonth()+1;
+    const year = pending?.year||new Date().getFullYear();
+
+    const updatedDraw = {id:drawId,month,year,status:'published',...simResult};
+
+    // Add wins to users
+    const newUsers = users.map(u=>{
+      const win = simResult.results.find(r=>r.userId===u.id);
+      if(win) return {...u, wins:[...u.wins, {drawId,match:win.match,prize:win.prize,status:'pending',proof:null}]};
+      return u;
+    });
+
+    setDraws(prev=>prev.map(d=>d.id===drawId?updatedDraw:{...d}));
+    setUsers(newUsers);
+
+    // Add next month pending draw
+    const nextMonth = month>=12?1:month+1;
+    const nextYear = month>=12?year+1:year;
+    const jackpot = simResult.results.some(r=>r.match==='5-Match') ? 0 : Math.round(simResult.prizePool*0.4)+simResult.jackpot;
+    setDraws(prev=>[...prev.filter(d=>d.id!==drawId),updatedDraw,{id:'d'+gen_id(),month:nextMonth,year:nextYear,status:'pending',numbers:null,prizePool:0,jackpot,results:[]}]);
+
+    setSimResult(null);
+    showToast(`${MONTHS[month-1]} draw published! ${simResult.results.length} winner(s)`, 'success');
+  }
+
+  return (
+    <div className="fade-in">
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
+        <div className="card">
+          <div style={{fontWeight:600,fontSize:16,marginBottom:20}}>Run Monthly Draw</div>
+          <div className="field" style={{marginBottom:16}}>
+            <label>Draw Logic</label>
+            <select className="select" value={logic} onChange={e=>setLogic(e.target.value)}>
+              <option value="random">Random — Standard Lottery</option>
+              <option value="algorithmic">Algorithmic — Weighted by Score Frequency</option>
+            </select>
+          </div>
+          {pending && (
+            <div style={{padding:14,background:'var(--s2)',borderRadius:'var(--r12)',marginBottom:16,fontSize:13}}>
+              <div style={{fontWeight:500,marginBottom:4}}>{MONTHS[pending.month-1]} {pending.year} Draw</div>
+              <div style={{color:'var(--tx2)'}}>Rolled jackpot: <strong style={{color:'var(--gold)'}}>{fmt_currency(pending.jackpot)}</strong></div>
+              <div style={{color:'var(--tx2)'}}>Eligible subscribers: <strong>{users.filter(u=>u.subscribed&&u.scores.length>0).length}</strong></div>
+            </div>
+          )}
+          <button className="btn btn-gold w-full" onClick={runSimulation} disabled={simRunning||!pending}>
+            {simRunning?<><span className="spinner"/> Running Simulation…</>:'Run Simulation'}
+          </button>
+          {simResult && (
+            <button className="btn btn-success w-full mt-8" onClick={publishDraw}>
+              Publish This Draw ✓
+            </button>
+          )}
+        </div>
+
+        <div className="card">
+          <div style={{fontWeight:600,fontSize:16,marginBottom:16}}>Simulation Preview</div>
+          {simResult ? (
+            <>
+              <div style={{fontSize:12,color:'var(--tx3)',textTransform:'uppercase',letterSpacing:0.8,fontWeight:600,marginBottom:8}}>Drawn Numbers</div>
+              <div className="draw-numbers">
+                {simResult.numbers.map((n,i)=><div key={i} className="ball ball-drawn">{n}</div>)}
+              </div>
+              <div className="divider"/>
+              <div style={{fontSize:12,marginBottom:8,fontWeight:600}}>Winners ({simResult.results.length})</div>
+              {simResult.results.length===0 ? (
+                <div style={{fontSize:13,color:'var(--tx3)'}}>No winners in this simulation. Jackpot rolls over.</div>
+              ) : simResult.results.map((r,i)=>{
+                const u=users.find(x=>x.id===r.userId);
+                return (
+                  <div key={i} style={{display:'flex',justifyContent:'space-between',fontSize:13,padding:'8px 0',borderBottom:'1px solid var(--bdr)'}}>
+                    <span style={{fontWeight:500}}>{u?.name||r.userId}</span>
+                    <span><span className="badge badge-gold">{r.match}</span> <strong style={{color:'var(--gold)',marginLeft:6}}>{fmt_currency(r.prize)}</strong></span>
+                  </div>
+                );
+              })}
+              <div className="divider"/>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
+                <span style={{color:'var(--tx2)'}}>Total Prize Pool</span>
+                <strong style={{color:'var(--gold)'}}>{fmt_currency(simResult.prizePool)}</strong>
+              </div>
+            </>
+          ) : (
+            <div className="empty"><div className="empty-icon">◎</div><div className="empty-title">No simulation yet</div><div className="empty-desc">Run a simulation to preview draw results before publishing</div></div>
+          )}
+        </div>
+      </div>
+
+      <div className="card mt-20">
+        <div style={{fontWeight:600,marginBottom:16}}>Draw History</div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Month</th><th>Numbers Drawn</th><th>Prize Pool</th><th>Winners</th><th>Status</th></tr></thead>
+            <tbody>
+              {[...draws].reverse().map(d=>(
+                <tr key={d.id}>
+                  <td style={{fontWeight:500}}>{MONTHS[d.month-1]} {d.year}</td>
+                  <td>
+                    {d.numbers ? (
+                      <div style={{display:'flex',gap:4}}>
+                        {d.numbers.map((n,i)=><span key={i} style={{width:26,height:26,borderRadius:'50%',background:'var(--gold)',color:'#0a0d08',display:'inline-flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:700}}>{n}</span>)}
+                      </div>
+                    ) : '—'}
+                  </td>
+                  <td>{d.prizePool>0?fmt_currency(d.prizePool):'—'}</td>
+                  <td>{d.results.length}</td>
+                  <td><span className={`badge ${d.status==='published'?'badge-green':'badge-gold'}`}>{d.status}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AdminCharities({ charities, setCharities, showToast }) {
+  const [modal,setModal]=useState(null); // null | 'add' | charity obj
+  const [form,setForm]=useState({name:'',cat:'',emoji:'',desc:''});
+  const f=k=>e=>setForm(p=>({...p,[k]:e.target.value}));
+
+  function openAdd() { setForm({name:'',cat:'',emoji:'🫶',desc:''}); setModal('add'); }
+  function openEdit(c) { setForm({name:c.name,cat:c.cat,emoji:c.emoji,desc:c.desc}); setModal(c); }
+
+  function save() {
+    if(!form.name.trim()||!form.desc.trim()) return showToast('Name and description required','error');
+    if(modal==='add') {
+      setCharities(p=>[...p,{id:'c'+gen_id(),...form,raised:0,events:[]}]);
+      showToast('Charity added','success');
+    } else {
+      setCharities(p=>p.map(c=>c.id===modal.id?{...c,...form}:c));
+      showToast('Charity updated','success');
+    }
+    setModal(null);
+  }
+
+  function remove(id) {
+    if(!confirm('Delete this charity?')) return;
+    setCharities(p=>p.filter(c=>c.id!==id));
+    showToast('Charity removed','success');
+  }
+
+  return (
+    <div className="fade-in">
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20}}>
+        <div style={{fontWeight:600,fontSize:18}}>Charity Management</div>
+        <button className="btn btn-gold btn-sm" onClick={openAdd}>+ Add Charity</button>
+      </div>
+      <div className="charity-grid">
+        {charities.map(c=>(
+          <div className="charity-card" key={c.id}>
+            <div className="charity-img">{c.emoji}</div>
+            <div className="charity-body">
+              <div className="charity-cat">{c.cat}</div>
+              <div className="charity-name">{c.name}</div>
+              <div className="charity-desc">{c.desc}</div>
+              <div className="charity-raised mb-12">Raised: <strong>{fmt_currency(c.raised)}</strong></div>
+              <div style={{display:'flex',gap:8}}>
+                <button className="btn btn-ghost btn-sm" onClick={()=>openEdit(c)}>Edit</button>
+                <button className="btn btn-danger btn-sm" onClick={()=>remove(c.id)}>Delete</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {modal && (
+        <div className="modal-overlay" onClick={e=>e.target===e.currentTarget&&setModal(null)}>
+          <div className="modal" style={{position:'relative'}}>
+            <button className="modal-close" onClick={()=>setModal(null)}>×</button>
+            <div className="modal-title" style={{marginBottom:20}}>{modal==='add'?'Add Charity':'Edit Charity'}</div>
+            <div style={{display:'flex',flexDirection:'column',gap:14}}>
+              <div className="form-row form-2col">
+                <div className="field"><label>Charity Name</label><input className="input" value={form.name} onChange={f('name')} placeholder="Name"/></div>
+                <div className="field"><label>Emoji Icon</label><input className="input" value={form.emoji} onChange={f('emoji')} style={{fontSize:22}}/></div>
+              </div>
+              <div className="field"><label>Category</label><input className="input" value={form.cat} onChange={f('cat')} placeholder="e.g. Mental Health"/></div>
+              <div className="field"><label>Description</label><textarea className="input" rows={3} value={form.desc} onChange={f('desc')} placeholder="Brief description…" style={{resize:'vertical'}}/></div>
+              <div style={{display:'flex',gap:12}}>
+                <button className="btn btn-gold flex-1" onClick={save}>Save</button>
+                <button className="btn btn-ghost" onClick={()=>setModal(null)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminWinners({ users, setUsers, draws, showToast }) {
+  const allWinners = users.flatMap(u=>u.wins.map(w=>({...w,user:u})));
+
+  function verify(userId, drawId, approve) {
+    setUsers(prev=>prev.map(u=>{
+      if(u.id!==userId) return u;
+      return {...u, wins:u.wins.map(w=>{
+        if(w.drawId!==drawId) return w;
+        return approve ? {...w,status:'paid'} : {...w,status:'rejected',proof:null};
+      })};
+    }));
+    showToast(approve?'Winner verified & marked as paid':'Submission rejected','success');
+  }
+
+  return (
+    <div className="fade-in">
+      <div style={{fontWeight:600,fontSize:18,marginBottom:20}}>Winners Verification</div>
+      {allWinners.length===0 ? (
+        <div className="card empty"><div className="empty-icon">★</div><div className="empty-title">No winners yet</div></div>
+      ) : allWinners.map((w,i)=>(
+        <div className="winner-card" key={i}>
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:12}}>
+            <div>
+              <div style={{fontWeight:600,marginBottom:2}}>{w.user.name}</div>
+              <div style={{fontSize:12,color:'var(--tx3)'}}>{w.user.email}</div>
+            </div>
+            <span className={`badge ${w.status==='paid'?'badge-green':w.status==='rejected'?'badge-red':w.proof?'badge-blue':'badge-gold'}`}>
+              {w.status==='paid'?'Paid':w.status==='rejected'?'Rejected':w.proof?'Proof Uploaded':'Pending'}
+            </span>
+          </div>
+          <div style={{display:'flex',gap:24,fontSize:13,marginBottom:12}}>
+            <span>Draw: <strong>{w.drawId}</strong></span>
+            <span>Match: <strong className="text-gold">{w.match}</strong></span>
+            <span>Prize: <strong className="text-gold">{fmt_currency(w.prize)}</strong></span>
+          </div>
+          {w.proof && <div style={{fontSize:12,color:'var(--grn)',marginBottom:12}}>✓ Proof uploaded: {w.proof}</div>}
+          {w.status==='pending' && w.proof && (
+            <div style={{display:'flex',gap:12}}>
+              <button className="btn btn-success btn-sm" onClick={()=>verify(w.user.id,w.drawId,true)}>✓ Approve & Mark Paid</button>
+              <button className="btn btn-danger btn-sm" onClick={()=>verify(w.user.id,w.drawId,false)}>✕ Reject</button>
+            </div>
+          )}
+          {w.status==='pending' && !w.proof && (
+            <div style={{fontSize:13,color:'var(--tx3)'}}>Waiting for winner to upload proof of scores.</div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AdminReports({ users, draws, charities }) {
+  const subCount = users.filter(u=>u.subscribed).length;
+  const monthlyRevenue = subCount * 12.99;
+  const charityTotal = users.filter(u=>u.subscribed).reduce((a,u)=>a+Math.round((PLANS[u.plan]?.price||12.99)*(u.charityPct/100)),0);
+  const totalPrizePool = draws.filter(d=>d.status==='published').reduce((a,d)=>a+d.prizePool,0);
+  const byPlan = {monthly:users.filter(u=>u.plan==='monthly').length, yearly:users.filter(u=>u.plan==='yearly').length};
+  const avgCharity = users.filter(u=>u.subscribed).length ? Math.round(users.filter(u=>u.subscribed).reduce((a,u)=>a+u.charityPct,0)/users.filter(u=>u.subscribed).length) : 0;
+
+  return (
+    <div className="fade-in">
+      <div style={{fontWeight:600,fontSize:18,marginBottom:20}}>Reports & Analytics</div>
+      <div className="stat-grid">
+        <div className="stat-card"><div className="stat-label">Total Users</div><div className="stat-value">{users.length}</div></div>
+        <div className="stat-card"><div className="stat-label">Active Subscribers</div><div className="stat-value" style={{color:'var(--grn)'}}>{subCount}</div></div>
+        <div className="stat-card"><div className="stat-label">Monthly Revenue</div><div className="stat-value" style={{color:'var(--gold)'}}>{fmt_currency(Math.round(monthlyRevenue))}</div></div>
+        <div className="stat-card"><div className="stat-label">Charity This Month</div><div className="stat-value" style={{color:'var(--grn)'}}>{fmt_currency(charityTotal)}</div></div>
+        <div className="stat-card"><div className="stat-label">Total Prize Pool</div><div className="stat-value">{fmt_currency(totalPrizePool)}</div></div>
+        <div className="stat-card"><div className="stat-label">Avg Charity %</div><div className="stat-value">{avgCharity}%</div></div>
+      </div>
+
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginTop:8}}>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Plan Distribution</div>
+          {Object.entries(byPlan).map(([plan,count])=>(
+            <div key={plan} style={{marginBottom:12}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,marginBottom:6}}>
+                <span style={{textTransform:'capitalize'}}>{plan}</span>
+                <span style={{fontWeight:600}}>{count} users</span>
+              </div>
+              <div className="progress-wrap"><div className="progress-fill" style={{width:`${(count/Math.max(users.length,1))*100}%`}}/></div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div style={{fontWeight:600,marginBottom:16}}>Charity Contributions</div>
+          {charities.map(c=>(
+            <div key={c.id} style={{display:'flex',justifyContent:'space-between',padding:'8px 0',borderBottom:'1px solid var(--bdr)',fontSize:13}}>
+              <span>{c.emoji} {c.name}</span>
+              <span style={{color:'var(--grn)',fontWeight:500}}>{fmt_currency(c.raised)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card mt-20">
+        <div style={{fontWeight:600,marginBottom:16}}>Draw Statistics</div>
+        <div className="table-wrap">
+          <table>
+            <thead><tr><th>Draw</th><th>Status</th><th>Pool</th><th>Jackpot</th><th>Winners</th></tr></thead>
+            <tbody>
+              {draws.map(d=>(
+                <tr key={d.id}>
+                  <td style={{fontWeight:500}}>{MONTHS[d.month-1]} {d.year}</td>
+                  <td><span className={`badge ${d.status==='published'?'badge-green':'badge-gold'}`}>{d.status}</span></td>
+                  <td>{d.prizePool>0?fmt_currency(d.prizePool):'—'}</td>
+                  <td style={{color:'var(--gold)',fontWeight:600}}>{fmt_currency(d.jackpot)}</td>
+                  <td>{d.results.length}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── APP ────────────────────────────────────────────────────── */
+function App() {
+  const [view,setView]=useState('home');
+  const [users,setUsers]=useState(INIT_USERS);
+  const [charities,setCharities]=useState(INIT_CHARITIES);
+  const [draws,setDraws]=useState(INIT_DRAWS);
+  const [user,setUser]=useState(null);
+  const [authMode,setAuthMode]=useState(null);
+  const [toast,setToast]=useState(null);
+
+  function showToast(msg,type='success') { setToast({msg,type}); }
+
+  function handleLogin(u) {
+    setUser(u);
+    setView(u.role==='admin'?'admin':'dashboard');
+  }
+
+  function handleLogout() { setUser(null); setView('home'); }
+
+  function onAuth(mode) {
+    if(mode==='login'||mode==='signup') setAuthMode(mode);
+  }
+
+  // Keep user state in sync with users array
+  useEffect(()=>{
+    if(user) {
+      const updated = users.find(u=>u.id===user.id);
+      if(updated&&JSON.stringify(updated)!==JSON.stringify(user)) setUser(updated);
+    }
+  },[users]);
+
+  return (
+    <>
+      <Nav view={view} setView={setView} user={user} onAuth={onAuth} onLogout={handleLogout}/>
+
+      {view==='home'       && <Landing onAuth={onAuth} draws={draws} charities={charities}/>}
+      {view==='charities'  && <CharitiesPage charities={charities} user={user} onAuth={onAuth}/>}
+      {view==='dashboard'  && user && (
+        <UserDashboard user={user} setUser={setUser} users={users} setUsers={setUsers}
+          charities={charities} draws={draws} setDraws={setDraws} showToast={showToast} onAuth={onAuth}/>
+      )}
+      {view==='admin'      && user?.role==='admin' && (
+        <AdminDashboard users={users} setUsers={setUsers} charities={charities} setCharities={setCharities}
+          draws={draws} setDraws={setDraws} showToast={showToast}/>
+      )}
+
+      {authMode && (
+        <AuthModal mode={authMode} onClose={()=>setAuthMode(null)} onLogin={handleLogin} users={users} setUsers={setUsers}/>
+      )}
+
+      {toast && <Toast msg={toast.msg} type={toast.type} onClose={()=>setToast(null)}/>}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
